@@ -33,7 +33,7 @@ LotFrontage: Linear feet of street connected to property
 LotArea: Lot size in square feet
 
 Street: Type of road access to property
-
+ 
        Grvl	Gravel	
        Pave	Paved
        	
