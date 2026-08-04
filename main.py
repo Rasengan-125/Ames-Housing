@@ -1,9 +1,4 @@
 import pandas as pd
 
-df = pd.read_csv("train.csv")
-
-
-print(df.groupby("MasVnrType")["MasVnrArea"].mean())
-print()
-# print(df.groupby("MasVnrType")["SalePrice"].mean())
-print(df["MasVnrArea"].corr(df["SalePrice"]))
+df_check = pd.read_csv("./data/train_cleaned.csv")
+print(df_check.isnull().sum().sum())
