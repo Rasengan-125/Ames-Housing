@@ -15,13 +15,34 @@ over them.
 ```
 ames-housing/
 ├── notebooks/
-│   ├── 01_cleaning.ipynb    missing value investigation and cleaning
-│   ├── 02_eda.ipynb          univariate, bivariate, and multivariate analysis
+│   ├── 01_cleaning.ipynb                    missing value investigation and cleaning
+│   ├── 02_eda.ipynb                         univariate, bivariate, and multivariate analysis
+│   ├── 03_regression_classification.ipynb   linear & logistic regression, Ridge, cross-validation
 ├── data/
 │   ├── train.csv              original, untouched
 │   ├── train_cleaned.csv      checkpoint produced by 01_cleaning.ipynb
+├── requirements.txt
 ├── README.md
 ```
+
+## Setup
+
+Clone the repo, then set up a virtual environment and install dependencies:
+
+```bash
+git clone https://github.com/Rasengan-125/ames-housing.git
+cd ames-housing
+
+python -m venv .venv
+source .venv/Scripts/activate      # Windows Git Bash
+# or: .venv\Scripts\Activate       # Windows PowerShell
+
+pip install -r requirements.txt
+```
+
+Then open the notebooks in `notebooks/` (VS Code or Jupyter), selecting the `.venv` environment
+as the kernel, and run them in order: `01_cleaning.ipynb` → `02_eda.ipynb` →
+`03_regression_classification.ipynb`.
 
 ## Cleaning
 
@@ -38,7 +59,7 @@ required catching genuine data-entry gaps hiding inside otherwise clean "does no
 
 Full reasoning and code is in [`01_cleaning.ipynb`](./notebooks/01_cleaning.ipynb).
 
-## Key findings
+## Key findings (EDA)
 
 1. `OverallQual` is the strongest predictor of `SalePrice` (r = 0.79), ahead of every column in
    the original hypothesis.
@@ -58,6 +79,30 @@ Full reasoning and code is in [`01_cleaning.ipynb`](./notebooks/01_cleaning.ipyn
 
 Full reasoning and code is in [`02_eda.ipynb`](./notebooks/02_eda.ipynb).
 
+## Regression & classification
+
+Built on `GrLivArea`, `OverallQual`, and `TotRmsAbvGrd`, the three strongest candidate features
+identified during EDA.
+
+**Linear regression (predicting `SalePrice`):**
+- Single split: R² = 75%, MAE = $28,509.31
+- 10-fold cross-validation: R² = 71%, CV MAE = $28,796.33
+- A single train/test split consistently overstated performance compared to cross-validation,
+  motivating the use of CV as the more trustworthy estimate throughout.
+
+**Logistic regression (classifying "expensive" vs. "affordable," median `SalePrice` split):**
+- Single split: Accuracy = 89.38%, BCE = 0.2700
+- 10-fold cross-validation: Accuracy = 86.44%, BCE = 0.3329
+
+**Ridge regression** was applied to address multicollinearity between the three features
+(`TotRmsAbvGrd` picked up a negative weight despite being positively correlated with `SalePrice`
+on its own, a direct multicollinearity effect once `GrLivArea` is held fixed), with the optimal
+alpha selected via cross-validation rather than a single split, which gave contradictory answers
+across two different splits.
+
+Full reasoning, derivations, and code are in
+[`03_regression_classification.ipynb`](./notebooks/03_regression_classification.ipynb).
+
 ## Data cleaning summary
 
 - Dropped `Id` (row index, no analytical value)
@@ -68,9 +113,10 @@ Full reasoning and code is in [`02_eda.ipynb`](./notebooks/02_eda.ipynb).
 
 ## Tech stack
 
-Python, Pandas, Matplotlib, Seaborn, in Jupyter notebooks.
+Python, NumPy, Pandas, Matplotlib, Seaborn, scikit-learn, in Jupyter notebooks.
 
 ## Next steps
 
-EDA phase complete. Next: predictive modeling, building on `OverallQual`, `GrLivArea`, and
-`Neighborhood` as the strongest candidate features.
+EDA and regression/classification phases complete for this dataset. Possible future work:
+additional feature engineering, comparing against other model types, or extending the classifier
+to more than a binary expensive/affordable split.
